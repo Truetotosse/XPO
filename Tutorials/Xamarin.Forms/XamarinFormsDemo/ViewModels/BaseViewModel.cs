@@ -2,15 +2,14 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-
+using XafSolution.Module.BusinessObjects;
 using Xamarin.Forms;
 
-using XamarinFormsDemo.Models;
 using XamarinFormsDemo.Services;
 
 namespace XamarinFormsDemo.ViewModels {
     public class BaseViewModel : INotifyPropertyChanged {
-        public IDataStore<Item> DataStore => DependencyService.Get<IDataStore<Item>>() ?? new XpoDataStore();
+        public IDataStore<Employee> DataStore => DependencyService.Get<IDataStore<Employee>>() ?? new XpoDataStore();
 
         bool isBusy = false;
         public bool IsBusy {

@@ -3,16 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using XamarinFormsDemo.Models;
+using XafSolution.Module.BusinessObjects;
 using XamarinFormsDemo.Services;
 
 [assembly: Xamarin.Forms.Dependency(typeof(XamarinFormsDemo.XpoDataStore))]
 namespace XamarinFormsDemo {
-    public class XpoDataStore : IDataStore<Item> {
-        public async Task<bool> AddItemAsync(Item item) {
+    public class XpoDataStore : IDataStore<Employee> {
+        public async Task<bool> AddItemAsync(Employee item) {
             try {
                 using(var uow = XpoHelper.CreateUnitOfWork()) {
-                    item.Id = Guid.NewGuid().ToString();
+                    Guid.NewGuid().ToString();
                     uow.Save(item);
                     await uow.CommitChangesAsync();
                     return true;
@@ -22,10 +22,10 @@ namespace XamarinFormsDemo {
             }
         }
 
-        public async Task<bool> DeleteItemAsync(string id) {
+        public async Task<bool> DeleteItemAsync(Guid id) {
             try {
                 using(var uow = XpoHelper.CreateUnitOfWork()) {
-                    var itemToDelete = uow.GetObjectByKey<Item>(id);
+                    var itemToDelete = uow.GetObjectByKey<Employee>(id);
                     if(itemToDelete != null) {
                         uow.Delete(itemToDelete);
                         await uow.CommitChangesAsync();
@@ -37,27 +37,28 @@ namespace XamarinFormsDemo {
             }
         }
 
-        public Task<Item> GetItemAsync(string id) {
+        public Task<Employee> GetItemAsync(Guid id) {
             using(var uow = XpoHelper.CreateUnitOfWork()) {
-                return uow.GetObjectByKeyAsync<Item>(id);
+                return uow.GetObjectByKeyAsync<Employee>(id);
             }
         }
 
-        public async Task<IEnumerable<Item>> GetItemsAsync(bool forceRefresh = false) {
+        public async Task<IEnumerable<Employee>> GetItemsAsync(bool forceRefresh = false) {
             using(var uow = XpoHelper.CreateUnitOfWork()) {
-                return await uow.Query<Item>().OrderBy(i => i.Description).ToListAsync();
+                return await uow.Query<Employee>().OrderBy(i => i.FullName).ToListAsync();
             }
         }
 
-        public async Task<bool> UpdateItemAsync(Item item) {
+        public async Task<bool> UpdateItemAsync(Employee item) {
             try {
                 using(var uow = XpoHelper.CreateUnitOfWork()) {
-                    var itemToUpdate = await uow.GetObjectByKeyAsync<Item>(item.Id);
+                    var itemToUpdate = await uow.GetObjectByKeyAsync<Employee>(item.Oid);
                     if(itemToUpdate == null) {
                         return false;
                     }
-                    itemToUpdate.Text = item.Text;
-                    itemToUpdate.Description = item.Description;
+                    itemToUpdate.FirstName = item.FirstName;
+                    itemToUpdate.LastName = item.LastName;
+                    itemToUpdate.Department = item.Department;
                     uow.Save(itemToUpdate);
                     await uow.CommitChangesAsync();
                     return true;

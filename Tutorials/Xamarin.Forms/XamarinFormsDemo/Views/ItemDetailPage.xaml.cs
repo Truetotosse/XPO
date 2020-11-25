@@ -1,7 +1,8 @@
 ﻿using System;
+using DevExpress.Xpo;
+using XafSolution.Module.BusinessObjects;
 using Xamarin.Forms;
 
-using XamarinFormsDemo.Models;
 using XamarinFormsDemo.ViewModels;
 
 namespace XamarinFormsDemo.Views {
@@ -12,9 +13,9 @@ namespace XamarinFormsDemo.Views {
         public ItemDetailPage() {
             InitializeComponent();
 
-            var item = new Item {
-                Text = "Item 1",
-                Description = "This is an item description."
+            var item = new Employee(XpoDefault.Session) {
+                FirstName = "Item 1",
+                LastName = "This is an item description."
             };
 
             viewModel = new ItemDetailViewModel(item);

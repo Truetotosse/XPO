@@ -3,35 +3,34 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-
+using XafSolution.Module.BusinessObjects;
 using Xamarin.Forms;
 
-using XamarinFormsDemo.Models;
 using XamarinFormsDemo.Views;
 
 namespace XamarinFormsDemo.ViewModels {
     public class ItemsViewModel : BaseViewModel {
-        public ObservableCollection<Item> Items { get; set; }
+        public ObservableCollection<Employee> Items { get; set; }
         public Command LoadItemsCommand { get; set; }
 
         public ItemsViewModel() {
             Title = "Browse";
-            Items = new ObservableCollection<Item>();
+            Items = new ObservableCollection<Employee>();
             LoadItemsCommand = new Command(async () => await ExecuteLoadItemsCommand());
 
-            MessagingCenter.Subscribe<NewItemPage, Item>(this, "AddItem", async (obj, item) => {
-                var _item = item as Item;
+            MessagingCenter.Subscribe<NewItemPage, Employee>(this, "AddItem", async (obj, item) => {
+                var _item = item as Employee;
                 Items.Add(_item);
                 await DataStore.AddItemAsync(_item);
             });
-            MessagingCenter.Subscribe<ItemsPage, Item>(this, "DeleteItem", async (obj, item) => {
-                var _item = item as Item;
+            MessagingCenter.Subscribe<ItemsPage, Employee>(this, "DeleteItem", async (obj, item) => {
+                var _item = item as Employee;
                 Items.Remove(_item);
-                await DataStore.DeleteItemAsync(_item.Id);
+                await DataStore.DeleteItemAsync(_item.Oid);
             });
-            MessagingCenter.Subscribe<ItemDetailPage, Item>(this, "UpdateItem", async (obj, item) => {
-                var _item = item as Item;
-                Items.Remove(Items.Single(i => i.Id == _item.Id));
+            MessagingCenter.Subscribe<ItemDetailPage, Employee>(this, "UpdateItem", async (obj, item) => {
+                var _item = item as Employee;
+                Items.Remove(Items.Single(i => i.Oid == _item.Oid));
                 Items.Add(_item);
                 await DataStore.UpdateItemAsync(_item);
             });

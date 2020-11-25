@@ -1,56 +1,48 @@
-﻿using DevExpress.Xpo;
+﻿using DevExpress.ExpressApp;
+using DevExpress.ExpressApp.Security;
+using DevExpress.ExpressApp.Security.ClientServer;
+using DevExpress.ExpressApp.Xpo;
+using DevExpress.Persistent.BaseImpl.PermissionPolicy;
+using DevExpress.Xpo;
 using DevExpress.Xpo.DB;
 using DevExpress.Xpo.Metadata;
 using System;
 using System.Linq;
-using XamarinFormsDemo.Models;
+using XafSolution.Module.BusinessObjects;
 
 namespace XamarinFormsDemo {
     public static class XpoHelper {
-        static readonly Type[] entityTypes = new Type[] {
-            typeof(Item)
-        };
-        public static void InitXpo(string connectionString) {
-            var dictionary = PrepareDictionary();
+        public static SecuredObjectSpaceProvider objectSpaceProvider;
+        public static AuthenticationStandard authentication; 
+        public static SecurityStrategyComplex security; 
+        public static void InitXpo(string connectionString, string login, string password) {
+            RegisterEntities();
+            authentication = new AuthenticationStandard();
+            security = new SecurityStrategyComplex(typeof(PermissionPolicyUser), typeof(PermissionPolicyRole), authentication);
+            security.RegisterXPOAdapterProviders();
+            objectSpaceProvider = new SecuredObjectSpaceProvider(security, connectionString, null);
 
-            if(XpoDefault.DataLayer == null) {
-                using(var updateDataLayer = XpoDefault.GetDataLayer(connectionString, dictionary, AutoCreateOption.DatabaseAndSchema)) {
-                    updateDataLayer.UpdateSchema(false, dictionary.CollectClassInfos(entityTypes));
-                }
-            }
+            authentication.SetLogonParameters(new AuthenticationStandardLogonParameters(login, password));
+            IObjectSpace loginObjectSpace = objectSpaceProvider.CreateObjectSpace();
+            security.Logon(loginObjectSpace);
 
-            var dataStore = XpoDefault.GetConnectionProvider(connectionString, AutoCreateOption.SchemaAlreadyExists);
-            XpoDefault.DataLayer = new ThreadSafeDataLayer(dictionary, dataStore);
-            XpoDefault.Session = null;
+            var space = objectSpaceProvider.CreateObjectSpace() as XPObjectSpace;
+            //XpoDefault.DataLayer = new ThreadSafeDataLayer(dictionary, objectSpaceProvider);
+            XpoDefault.Session = space.Session;
 
-            CreateDemoData();
+            
         }
         public static UnitOfWork CreateUnitOfWork() {
-            return new UnitOfWork();
+            var space = objectSpaceProvider.CreateObjectSpace() as XPObjectSpace;
+            return space.Session as UnitOfWork;
         }
-        static XPDictionary PrepareDictionary() {
-            var dict = new ReflectionDictionary();
-            dict.GetDataStoreSchema(entityTypes);
-            return dict;
-        }
+        
 
-        static readonly Item[] demoData = new Item[] {
-                new Item { Id = Guid.NewGuid().ToString(), Text = "First item", Description="This is an item description #1." },
-                new Item { Id = Guid.NewGuid().ToString(), Text = "Second item", Description="This is an item description #2." },
-                new Item { Id = Guid.NewGuid().ToString(), Text = "Third item", Description="This is an item description #3." },
-                new Item { Id = Guid.NewGuid().ToString(), Text = "Fourth item", Description="This is an item description #4." },
-                new Item { Id = Guid.NewGuid().ToString(), Text = "Fifth item", Description="This is an item description #5." },
-                new Item { Id = Guid.NewGuid().ToString(), Text = "Sixth item", Description="This is an item description #6." },
-        };
-        static void CreateDemoData() {
-            using(var uow = CreateUnitOfWork()) {
-                if(!uow.Query<Item>().Any()) {
-                    foreach(var demoItem in demoData) {
-                        uow.Save(demoItem);
-                    }
-                    uow.CommitChanges();
-                }
-            }
+        private static void RegisterEntities() {
+            XpoTypesInfoHelper.GetXpoTypeInfoSource();
+            XafTypesInfo.Instance.RegisterEntity(typeof(Employee));
+            XafTypesInfo.Instance.RegisterEntity(typeof(PermissionPolicyUser));
+            XafTypesInfo.Instance.RegisterEntity(typeof(PermissionPolicyRole));
         }
     }
 }

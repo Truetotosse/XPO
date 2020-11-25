@@ -1,12 +1,11 @@
 ﻿using System;
-
-using XamarinFormsDemo.Models;
+using XafSolution.Module.BusinessObjects;
 
 namespace XamarinFormsDemo.ViewModels {
     public class ItemDetailViewModel : BaseViewModel {
-        public Item Item { get; set; }
-        public ItemDetailViewModel(Item item = null) {
-            Title = item?.Text;
+        public Employee Item { get; set; }
+        public ItemDetailViewModel(Employee item = null) {
+            Title = item?.FullName;
             Item = item;
         }
     }

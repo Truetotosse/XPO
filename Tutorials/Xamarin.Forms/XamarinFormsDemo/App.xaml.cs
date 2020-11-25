@@ -17,8 +17,9 @@ namespace XamarinFormsDemo {
             // Connect to SQLite
             var filePath = Path.Combine(documentsPath, "xpoXamarinDemo.db");
             string connectionString = SQLiteConnectionProvider.GetConnectionString(filePath) + ";Cache=Shared;";
-
-            XpoHelper.InitXpo(connectionString);
+            string login = "Admin";
+            string password = "User";
+            XpoHelper.InitXpo(connectionString, login, password);
 
             if(Device.RuntimePlatform == Device.iOS)
                 MainPage = new MainPage();

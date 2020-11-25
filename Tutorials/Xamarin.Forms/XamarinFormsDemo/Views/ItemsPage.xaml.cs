@@ -1,7 +1,7 @@
 ﻿using System;
+using XafSolution.Module.BusinessObjects;
 using Xamarin.Forms;
 
-using XamarinFormsDemo.Models;
 using XamarinFormsDemo.ViewModels;
 
 namespace XamarinFormsDemo.Views {
@@ -15,7 +15,7 @@ namespace XamarinFormsDemo.Views {
         }
 
         async void OnItemSelected(object sender, SelectedItemChangedEventArgs args) {
-            var item = args.SelectedItem as Item;
+            var item = args.SelectedItem as Employee;
             if(item == null)
                 return;
 
@@ -31,9 +31,9 @@ namespace XamarinFormsDemo.Views {
 
         async void Delete_Clicked(object sender, EventArgs e) {
             Button button = (Button)sender;
-            Item item = button.BindingContext as Item;
+            Employee item = button.BindingContext as Employee;
             if(item != null) {
-                var result = await DisplayAlert("Delete", $"Are you sure you want to delete the \"{item.Text}\" item?", "Yes", "No");
+                var result = await DisplayAlert("Delete", $"Are you sure you want to delete the \"{item.FullName}\" item?", "Yes", "No");
                 if(result) {
                     MessagingCenter.Send(this, "DeleteItem", item);
                 }
